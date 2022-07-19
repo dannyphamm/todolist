@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime?  @updatedAt
+  title       String    @db.VarChar(255)
+  body        String?
+  image       String?
+  username    String    @db.VarChar(255)
+  subreddit   Subreddit @relation(fields: [subredditId], references: [id])
+  subredditId Int
+  comments     Comment[]
+  votes        Vote[]
+}
+
+model Subreddit {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  topic     String   @db.VarChar(255)
+  Post      Post[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  username  String   @db.VarChar(255)
+  text      String
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  upvote    Boolean
+  username  String   @db.VarChar(255)
+}
